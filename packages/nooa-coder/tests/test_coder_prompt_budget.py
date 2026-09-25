@@ -17,7 +17,6 @@ prompt must raise a limit here on purpose.
 import asyncio
 
 import pytest
-from coder_test_agents import cell
 from nooa_coder.session.options import SessionOptions
 from nooa_coder.session.registry import SessionRegistry
 from nooa_coder.session.store import SessionStore
@@ -36,23 +35,13 @@ RESULT = (
 # Measured after PR 0, then raised on tree/4-router: the state block names the
 # repository root, the class says ``cd`` moves shell and repo tools, the turn
 # methods say locals last one method call, and the repo tools take ``cwd``.
+# Lowered when CodingAgent moved to CodeActV2 (2026-09-25; was 19,827 / 23,935
+# for handle): measured values plus about 2% headroom.
 LIMITS = {
-    (CODER, "handle"): (
-        19_600,
-        23_400,
-    ),  # measured 19,510 / 23,307 after PR 0 (shell cwd=, result-field docs)
-    (CODER, "handle_batch"): (
-        19_600,
-        23_000,
-    ),  # measured 19,510 / 22,951 after PR 0 (shell cwd=, result-field docs)
-    (EXPERIMENTAL, "handle"): (
-        11_100,
-        13_300,
-    ),  # measured 11,049 / 13,222 after PR 0 (shell cwd=, result-field docs)
-    (EXPERIMENTAL, "handle_batch"): (
-        11_100,
-        13_900,
-    ),  # measured 13,608 after the P2a ownership/usage fixes
+    (CODER, "handle"): (11_500, 15_200),  # measured 11,279 / 14,879
+    (CODER, "handle_batch"): (11_500, 14_800),  # measured 11,279 / 14,523
+    (EXPERIMENTAL, "handle"): (11_200, 13_700),  # measured 11,162 / 13,627
+    (EXPERIMENTAL, "handle_batch"): (11_200, 14_000),  # measured 11,162 / 13,980
 }
 # The bench guard's system-prompt ceiling; every agent stays under it.
 BENCH_SYSTEM_LIMIT = 20_000
@@ -71,7 +60,7 @@ def _no_installed_skills(monkeypatch, tmp_path):
 @pytest.mark.parametrize(("spec", "method"), list(LIMITS))
 async def test_first_call_prompt_stays_within_budget(spec, method, tmp_path, sessions_dir):
     code = RESULT if method == "handle_batch" else "return_result(Done(explanation='x'))"
-    response = cell(code) if spec == CODER else python_cell(code, "call_1")
+    response = python_cell(code, "call_1")
     llm = FakeLLMClient([response], strict_exhaustion=True)
     workspace = tmp_path / "workspace"
     workspace.mkdir()
