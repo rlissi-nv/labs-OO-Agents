@@ -33,6 +33,9 @@ RESULT = (
 )
 
 # (spec, turn method): (system prompt chars, all message chars)
+# Measured after PR 0, then raised on tree/4-router: the state block names the
+# repository root, the class says ``cd`` moves shell and repo tools, the turn
+# methods say locals last one method call, and the repo tools take ``cwd``.
 LIMITS = {
     (CODER, "handle"): (
         19_600,
