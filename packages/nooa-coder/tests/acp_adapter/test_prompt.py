@@ -255,7 +255,7 @@ async def test_a_command_with_text_output_answers_without_a_turn(make_adapter, w
     response = await _prompt(adapter, session_id, "/model fast")
     assert response.stop_reason == "end_turn"
     assert client.texts(AgentMessageChunk, session_id)[-1] == "model is fast"
-    agent = adapter.session(session_id).agent
+    agent = adapter.session(session_id)._agent
     assert isinstance(agent, CommandAgent)
     assert agent.slash_commands.invoked == [("model", "fast")]
 
@@ -393,7 +393,7 @@ async def test_an_unknown_slash_command_is_an_ordinary_prompt(make_adapter, work
 async def test_a_failing_command_reports_the_failure(make_adapter, workspace, client):
     adapter = await make_adapter(ScriptedModels(), agent_spec="coder_test_agents:CommandAgent")
     session_id = await _new(adapter, workspace)
-    agent = adapter.session(session_id).agent
+    agent = adapter.session(session_id)._agent
 
     async def broken(name, raw_args):
         raise RuntimeError("command exploded")
@@ -409,7 +409,7 @@ async def test_a_command_for_the_agent_with_no_output_says_so(make_adapter, work
 
     adapter = await make_adapter(ScriptedModels(), agent_spec="coder_test_agents:CommandAgent")
     session_id = await _new(adapter, workspace)
-    agent = adapter.session(session_id).agent
+    agent = adapter.session(session_id)._agent
 
     async def empty(name, raw_args):
         return _CommandOutput("", None, True)
