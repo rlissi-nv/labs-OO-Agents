@@ -6,6 +6,11 @@ to follow semantic versioning.
 
 ## [Unreleased]
 
+- `nooa-coder`: `/recover` in ACP sessions continues a session that is marked in use,
+  for example after a crash on another machine sharing the directory, in a new copy.
+  Without an argument it lists those sessions. The original file is never modified;
+  queued messages it never read and its subagent sessions are not carried over, and the
+  agent is told. `SessionStore.in_use()` and `SessionStore.fork()` are the store API.
 - `nooa connect` offers the NVIDIA Inference Hub (`inference-api.nvidia.com`,
   key in `NVIDIA_INFERENCE_API_KEY`) as a preset provider, after build.nvidia.com.
 - `nooa-coder`: the ACP model picker re-reads the model registry when a registry file changes, so an alias added with `nooa connect` in a terminal appears without restarting the server.
